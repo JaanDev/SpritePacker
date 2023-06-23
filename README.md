@@ -15,17 +15,17 @@ Or, you can just specify parameters when launching `main.py`.
 Don't use `packer.py` or `unpacker.py` directly.
 
 ### Parameters:
-Firstly you must specify `pack` or `unpack`.
+Firstly you must specify `pack` or `unpack`.<br>
 `-i/--input`: specify input files/directories (you can specify multiple entries) splitted by spaces.
-`-o/--output`: specify an output directory. It will be created if it doesnt exist.
-`-I/--original`: specify original .plist files for the original `spriteOffset` field. If you don't use them, your sprites may be out-of-place (only if you are not making your own sprite sheet but editing an existing one). Only used for packing! You can just specify blank strings (`""`) to not use an original file. The number of these files must be the same as number of your inputs.
+`-o/--output`: specify an output directory. It will be created if it doesnt exist.<br>
+`-I/--original`: specify original .plist files for the original `spriteOffset` field. If you don't use them, your sprites may be out-of-place (only if you are not making your own sprite sheet but editing an existing one). Only used for packing! You can just specify blank strings (`""`) to not use an original file. The number of these files must be the same as number of your inputs.<br>
 `-p/--padding`: specify padding around sprites when packing (optional). A default value is 2. You can increase it if you see some weird artifacts at the edges of your sprites.
 
 You also may not use any of the `-i/-o/-I` params or only use some of them, then you will be able to use the file/directory picker for the remaining params.
 
 ### Example usage
-`python main.py pack -o sheets -i ".\extracted\GJ_GameSheet03-uhd" -I ".\orig\GJ_GameSheet03-uhd.plist" -p 6`
-`python main.py unpack -o . -i GJ_GameSheet03-uhd.plist` (the images from a plist are in `./GJ_GameSheet03-uhd` directory)
+`python main.py pack -o sheets -i ".\extracted\GJ_GameSheet03-uhd" -I ".\orig\GJ_GameSheet03-uhd.plist" -p 6`<br>
+`python main.py unpack -o . -i GJ_GameSheet03-uhd.plist` (the images from a plist are in `./GJ_GameSheet03-uhd` directory)<br>
 `python main.py unpack` (the input file(s) and the output dir are specified through your system's file dialog)
 ```
 $ python main.py
