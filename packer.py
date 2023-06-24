@@ -122,8 +122,9 @@ def pack(inputs: List[Path], originals: List[Path], output: Path, padding: int) 
 
     for input, orig in zip(inputs, originals):
         orig_plist = None
-        with open(orig, 'rb') as f:
-            orig_plist = plistlib.load(f)
+        if orig:
+            with open(orig, 'rb') as f:
+                orig_plist = plistlib.load(f)
 
         boxes: List[Box] = []
 
@@ -186,17 +187,21 @@ def pack(inputs: List[Path], originals: List[Path], output: Path, padding: int) 
         for b in boxes:
             obj = {}
             obj['aliases'] = []
+            
+            size = f'{{{(b.w if not b.rotated else b.h) - padding * 2},{(b.h if not b.rotated else b.w) - padding * 2}}}'
 
-            orig_offset = [0, 0]
+            orig_offset = "{0,0}"
+            source_size = size
             if orig_plist:
                 orig_val = orig_plist['frames'][b.name]
-                orig_offset = [int(x) for x in re.search(
-                    r"\{([0-9\-]+),([0-9\-]+)\}", orig_val["spriteOffset"]).groups()]
+                if orig_val:
+                    orig_offset = orig_val['spriteOffset']
+                    source_size = orig_val['spriteSourceSize']
 
-            obj['spriteOffset'] = f'{{{-padding + orig_offset[0]},{-padding + orig_offset[1]}}}'
-            size = f'{{{b.w if not b.rotated else b.h},{b.h if not b.rotated else b.w}}}'
-            obj['spriteSize'] = obj['spriteSourceSize'] = size
-            obj['textureRect'] = f'{{{{{b.x},{b.y}}},{size}}}'
+            obj['spriteOffset'] = orig_offset
+            obj['spriteSize'] = size
+            obj['spriteSourceSize'] = source_size
+            obj['textureRect'] = f'{{{{{b.x + padding},{b.y + padding}}},{size}}}'
             obj['textureRotated'] = b.rotated
 
             plist['frames'][b.name] = obj

@@ -54,7 +54,7 @@ def processCommand(args: argparse.Namespace) -> None:
                     print(
                         f'The specified input directory {file} is not valid! Please specify directory inputs')
 
-        if len(args.input) != len(args.original):
+        if not args.original or len(args.input) != len(args.original):
             root = tk.Tk()
             root.withdraw()
             args.original = []
