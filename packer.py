@@ -122,7 +122,8 @@ def pack(inputs: List[Path], originals: List[Path], output: Path, padding: int) 
 
     for input, orig in zip(inputs, originals):
         orig_plist = None
-        if orig:
+
+        if orig.is_file():
             with open(orig, 'rb') as f:
                 orig_plist = plistlib.load(f)
 
@@ -187,7 +188,7 @@ def pack(inputs: List[Path], originals: List[Path], output: Path, padding: int) 
         for b in boxes:
             obj = {}
             obj['aliases'] = []
-            
+
             size = f'{{{(b.w if not b.rotated else b.h) - padding * 2},{(b.h if not b.rotated else b.w) - padding * 2}}}'
 
             orig_offset = "{0,0}"
