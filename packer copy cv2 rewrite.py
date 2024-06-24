@@ -7,8 +7,6 @@ import plistlib
 from tqdm import tqdm
 import re
 
-from datetime import datetime
-
 
 class Box:
     def __init__(self, w: int, h: int, x: int = 0, y: int = 0) -> None:
@@ -123,7 +121,6 @@ def pack(inputs: List[Path], originals: List[Path], output: Path, padding: int) 
     for inp in inputs:
         boxes: List[Box] = []
 
-        _start = datetime.now()
         for f in inp.iterdir():
             if not f.is_file() or f.suffix != ".png":
                 continue
@@ -140,7 +137,6 @@ def pack(inputs: List[Path], originals: List[Path], output: Path, padding: int) 
             b.name = f.name
             b.rotated = rotated
             boxes.append(b)
-        print('tex loaded in', datetime.now() - _start)
 
         # sort boxes by height in descending order (from tallest)
         boxes.sort(key=lambda box: box.h, reverse=True)
@@ -151,19 +147,14 @@ def pack(inputs: List[Path], originals: List[Path], output: Path, padding: int) 
         width = max(math.ceil(math.sqrt(area / 0.95)), maxW)
 
         with tqdm(total=len(boxes), ascii=" ▁▂▃▄▅▆▇█", bar_format=inp.name + ": {percentage:1.0f}% {bar} [{n_fmt}/{total_fmt}]") as pbar:
-            _start = datetime.now()
             boxes, height = algorithm(boxes.copy(), Box(width, -9999999), pbar)
-            print('alg1 in', datetime.now() - _start)
         totalArea = width * height
         print(f"Free space: {(totalArea - area) / totalArea * 100:.2f}%")
 
         print("Creating an image")
 
-        _start = datetime.now()
         img = np.zeros((height, width, 4), np.uint8)
-        print('img created in', datetime.now() - _start)
 
-        _start = datetime.now()
         for box in boxes:
             # img.paste(box.img, (box.x + padding, box.y + padding))
             realw, realh = box.w - padding * 2, box.h - padding * 2
@@ -171,15 +162,12 @@ def pack(inputs: List[Path], originals: List[Path], output: Path, padding: int) 
             x2 = x1 + realw
             y1 = box.y + padding
             y2 = y1 + realh
-
+            
             img[y1:y2, x1:x2] = box.img
-        print('imgs pasted in', datetime.now() - _start)
 
         image_filename = f"{inp.name}.png"
 
-        _start = datetime.now()
         cv2.imwrite(str(output.joinpath(image_filename)), img)
-        print('img saved in', datetime.now() - _start)
 
         print("Creating a plist")
 
