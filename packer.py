@@ -30,7 +30,7 @@ class Box:
         return self.w <= other.w and (self.h <= other.h if other.h >= 0 else True)
 
     def __str__(self) -> str:
-        return f'({self.w}, {self.h})'
+        return f"({self.w}, {self.h})"
 
     def __repr__(self):
         return str(self)
@@ -60,7 +60,7 @@ def algorithm(boxes: List[Box], rect: Box, pbar: tqdm, recursive: bool = False) 
             if recursive and total_h + box.h > rect.h:
                 continue
             pos[1] += line_h  # go to a new line
-            pos[0] = rect.x       # go to a new line
+            pos[0] = rect.x  # go to a new line
             line_h = box.h  # new line height is a current box's height as it is the tallest of the remaining boxes
             total_h += line_h
             # place current box at the start of a new line
@@ -86,8 +86,7 @@ def algorithm(boxes: List[Box], rect: Box, pbar: tqdm, recursive: bool = False) 
 
         iteration_width = box.w  # how much to move right after this current iteration
 
-        free_space1 = Box(box.w, line_h - box.h, box.x, box.y +
-                          box.h)
+        free_space1 = Box(box.w, line_h - box.h, box.x, box.y + box.h)
         boxes1 = [b for b in boxes if b.fits(free_space1)]
         if boxes1:
             boxes1, _ = algorithm(boxes1, free_space1, pbar, True)
@@ -96,8 +95,7 @@ def algorithm(boxes: List[Box], rect: Box, pbar: tqdm, recursive: bool = False) 
                 if b in boxes:
                     boxes.remove(b)
 
-        free_space2 = Box(rect.w - (box.w + (box.x - rect.x)), line_h, box.x +
-                          box.w, box.y)
+        free_space2 = Box(rect.w - (box.w + (box.x - rect.x)), line_h, box.x + box.w, box.y)
         boxes2 = [b for b in boxes if b.fits(free_space2)]
         if boxes2:
             boxes2, _ = algorithm(boxes2, free_space2, pbar, True)
@@ -117,28 +115,13 @@ def algorithm(boxes: List[Box], rect: Box, pbar: tqdm, recursive: bool = False) 
 
 
 def pack(inputs: List[Path], originals: List[Path], output: Path, padding: int) -> None:
-    if not output.exists():
-        output.mkdir(parents=True, exist_ok=True)
-    
-    orig_plists = []
+    orig_plists = [plistlib.load(open(orig, "rb")) for orig in originals]
 
-    for orig in originals:
-        if orig.is_file():
-            with open(orig, 'rb') as f:
-                orig_plist = plistlib.load(f)
-                orig_plists.append(orig_plist)
-
-    for input, orig in zip(inputs, originals):
-        # orig_plist = None
-
-        # if orig.is_file():
-        #     with open(orig, 'rb') as f:
-        #         orig_plist = plistlib.load(f)
-
+    for inp in inputs:
         boxes: List[Box] = []
 
-        for f in input.iterdir():
-            if f.suffix != ".png":
+        for f in inp.iterdir():
+            if not f.is_file() or f.suffix != ".png":
                 continue
 
             img = Image.open(f)
@@ -146,9 +129,7 @@ def pack(inputs: List[Path], originals: List[Path], output: Path, padding: int) 
             rotated = False
             if w < h:
                 img = img.rotate(-90, expand=True)
-                t = h
-                h = w
-                w = t
+                h, w = w, h
                 rotated = True
             b = Box(w + padding * 2, h + padding * 2)
             boxes.append(b)
@@ -164,19 +145,21 @@ def pack(inputs: List[Path], originals: List[Path], output: Path, padding: int) 
 
         width = max(math.ceil(math.sqrt(area / 0.95)), maxW)
 
-        with tqdm(total=len(boxes), ascii=" ▁▂▃▄▅▆▇█", bar_format=input.stem + ': {percentage:1.0f}% {bar} [{n_fmt}/{total_fmt}]') as pbar:
+        with tqdm(total=len(boxes), ascii=" ▁▂▃▄▅▆▇█", bar_format=inp.name + ": {percentage:1.0f}% {bar} [{n_fmt}/{total_fmt}]") as pbar:
             boxes, height = algorithm(boxes.copy(), Box(width, -9999999), pbar)
-        totalArea = width*height
+        totalArea = width * height
         print(f"Free space: {(totalArea - area) / totalArea * 100:.2f}%")
 
         print("Creating an image")
 
-        img = Image.new('RGBA', (width, height))
+        img = Image.new("RGBA", (width, height))
 
         for box in boxes:
             img.paste(box.img, (box.x + padding, box.y + padding))
 
-        img.save(output.joinpath(f'{input.stem}.png'))
+        image_filename = f"{inp.name}.png"
+
+        img.save(output.joinpath(image_filename))
 
         print("Creating a plist")
 
@@ -186,38 +169,38 @@ def pack(inputs: List[Path], originals: List[Path], output: Path, padding: int) 
                 format=3,
                 pixelFormat="RGBA4444",
                 premultiplyAlpha=False,
-                realTextureFileName=f'{input.stem}.png',
-                size=f'{{{width},{height}}}',
+                realTextureFileName=image_filename,
+                size=f"{{{width},{height}}}",
                 smartupdate="$none",
-                textureFileName=f'{input.stem}.png'
-            )
+                textureFileName=image_filename,
+            ),
         )
 
         for b in boxes:
             obj = {}
-            obj['aliases'] = []
+            obj["aliases"] = []
 
-            size = f'{{{(b.w if not b.rotated else b.h) - padding * 2},{(b.h if not b.rotated else b.w) - padding * 2}}}'
+            size = f"{{{(b.w if not b.rotated else b.h) - padding * 2},{(b.h if not b.rotated else b.w) - padding * 2}}}"
 
             orig_offset = "{0,0}"
             source_size = size
             # if orig_plist:
             for orig_plist in orig_plists:
-                if b.name in orig_plist['frames']:
-                    orig_val = orig_plist['frames'][b.name]
+                if b.name in orig_plist["frames"]:
+                    orig_val = orig_plist["frames"][b.name]
                     if orig_val:
-                        orig_offset = orig_val['spriteOffset']
-                        source_size = orig_val['spriteSourceSize']
+                        orig_offset = orig_val["spriteOffset"]
+                        source_size = orig_val["spriteSourceSize"]
 
-            obj['spriteOffset'] = orig_offset
-            obj['spriteSize'] = size
-            obj['spriteSourceSize'] = source_size
-            obj['textureRect'] = f'{{{{{b.x + padding},{b.y + padding}}},{size}}}'
-            obj['textureRotated'] = b.rotated
+            obj["spriteOffset"] = orig_offset
+            obj["spriteSize"] = size
+            obj["spriteSourceSize"] = source_size
+            obj["textureRect"] = f"{{{{{b.x + padding},{b.y + padding}}},{size}}}"
+            obj["textureRotated"] = b.rotated
 
-            plist['frames'][b.name] = obj
+            plist["frames"][b.name] = obj
 
-        with open(output.joinpath(f'{input.name}.plist'), 'wb') as f:
+        with open(output.joinpath(f"{inp.name}.plist"), "wb") as f:
             plistlib.dump(plist, f)
 
         print("Done")

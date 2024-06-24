@@ -38,7 +38,7 @@ def process_frame(name: str, value: dict, img, out_dir: Path) -> None:
     bounds[2] += bounds[0]
     bounds[3] += bounds[1]
 
-    cropped = img[bounds[1] : bounds[3], bounds[0] : bounds[2]]
+    cropped = img[bounds[1]:bounds[3], bounds[0]:bounds[2]]
 
     if rotated:
         cropped = cv2.rotate(cropped, cv2.ROTATE_90_COUNTERCLOCKWISE)
