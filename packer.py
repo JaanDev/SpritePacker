@@ -119,13 +119,21 @@ def algorithm(boxes: List[Box], rect: Box, pbar: tqdm, recursive: bool = False) 
 def pack(inputs: List[Path], originals: List[Path], output: Path, padding: int) -> None:
     if not output.exists():
         output.mkdir(parents=True, exist_ok=True)
+    
+    orig_plists = []
 
-    for input, orig in zip(inputs, originals):
-        orig_plist = None
-
+    for orig in originals:
         if orig.is_file():
             with open(orig, 'rb') as f:
                 orig_plist = plistlib.load(f)
+                orig_plists.append(orig_plist)
+
+    for input, orig in zip(inputs, originals):
+        # orig_plist = None
+
+        # if orig.is_file():
+        #     with open(orig, 'rb') as f:
+        #         orig_plist = plistlib.load(f)
 
         boxes: List[Box] = []
 
@@ -193,11 +201,13 @@ def pack(inputs: List[Path], originals: List[Path], output: Path, padding: int) 
 
             orig_offset = "{0,0}"
             source_size = size
-            if orig_plist:
-                orig_val = orig_plist['frames'][b.name]
-                if orig_val:
-                    orig_offset = orig_val['spriteOffset']
-                    source_size = orig_val['spriteSourceSize']
+            # if orig_plist:
+            for orig_plist in orig_plists:
+                if b.name in orig_plist['frames']:
+                    orig_val = orig_plist['frames'][b.name]
+                    if orig_val:
+                        orig_offset = orig_val['spriteOffset']
+                        source_size = orig_val['spriteSourceSize']
 
             obj['spriteOffset'] = orig_offset
             obj['spriteSize'] = size
