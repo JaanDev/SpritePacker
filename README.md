@@ -1,5 +1,5 @@
 # SpritePacker
-A simple & open-source CLI tool written in Python for packing and unpacking sprite sheets (only .plist format is implemented right now). The packing algorithm is binary tree bin packing (which i've coded myself :<remove-github-emojis>P).
+A simple, fast, cross-platform & open-source CLI tool written in Python for packing and unpacking sprite sheets (only .plist format is implemented right now). The packing algorithm is binary tree bin packing (which i've coded myself :<remove-github-emojis>P).
 
 ## Installation
 1. Install Python 3+
