@@ -19,8 +19,6 @@ def globbed_list(p: List[Path]) -> List[Path]:
 
 def process_all_files(resolution: str, output_dir: str, input_folder: str):
     print(f"{Fore.CYAN}Processing {resolution} resolution files from {input_folder} to {output_dir}{Style.RESET_ALL}")
-    
-    print(resolution, input_folder, output_dir)
 
     # Create output directory if it doesn't exist
     Path(output_dir).mkdir(exist_ok=True, parents=True)
