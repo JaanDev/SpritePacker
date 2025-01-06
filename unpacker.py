@@ -24,7 +24,6 @@ def process_frame(name: str, value: dict, img, out_dir: Path) -> None:
         cropped = cv2.rotate(cropped, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
     output_path = out_dir.joinpath(name)
-    # print(f"Writing to {output_path}")  # Debug print
     success = cv2.imwrite(str(output_path), cropped)
 
     if not success:
@@ -34,22 +33,15 @@ def process_frame(name: str, value: dict, img, out_dir: Path) -> None:
 
 
 def unpack(inputs: List[Path], output: Path) -> None:
-    # print(f"Output directory: {output}")  # Debug print
-    output.mkdir(exist_ok=True, parents=True)
-
     for file in inputs:
-        if file.suffix != ".plist":
-            continue
         out_dir = output.joinpath(file.stem)
 
         print(f"Unpacking {file.name} => {out_dir}")
-        # print(f"Processing file: {file}")  # Debug print
         with open(file, "rb") as f:
             plist = plistlib.load(f)
 
         image_path = plist["metadata"]["textureFileName"]
         img_path = file.parent.joinpath(image_path)
-        # print(f"Looking for image at: {img_path}")  # Debug print
 
         if not img_path.exists():
             print(f"{Fore.RED}Image file not found: {img_path}!{Style.RESET_ALL}")
@@ -61,7 +53,6 @@ def unpack(inputs: List[Path], output: Path) -> None:
             continue
 
         out_dir.mkdir(exist_ok=True, parents=True)
-        # print(f"Created output directory: {out_dir}")  # Debug print
 
         skipped = []
 
