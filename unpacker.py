@@ -63,8 +63,11 @@ def unpack(inputs: List[Path], output: Path) -> None:
         out_dir.mkdir(exist_ok=True, parents=True)
         # print(f"Created output directory: {out_dir}")  # Debug print
 
+        skipped = []
+
         for name, value in tqdm(plist["frames"].items(), ascii=" ▁▂▃▄▅▆▇█", bar_format=file.stem + ": {percentage:1.0f}% {bar} [{n_fmt}/{total_fmt}]"):
             if name == "." or name == ".." or Path(name).suffix != ".png":
+                skipped.append(name)
                 continue
 
             try:
@@ -72,3 +75,6 @@ def unpack(inputs: List[Path], output: Path) -> None:
             except Exception as e:
                 print(f"{Fore.RED}Error processing frame {name}: {str(e)}{Style.RESET_ALL}")
                 continue
+
+        if skipped:
+            print(f'{Fore.YELLOW}Skipped frames: {", ".join(skipped)}{Style.RESET_ALL}')
