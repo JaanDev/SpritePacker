@@ -17,7 +17,7 @@ Don't use `packer.py` or `unpacker.py` directly.
 Example:  
 `python main.py pack -i ".\extracted\GJ_GameSheet03-uhd" -o sheets -I ".\orig\GJ_GameSheet03-uhd.plist" -p 6`  
 `python main.py unpack -o . -i GJ_GameSheet03-uhd.plist` (original images are in the `./GJ_GameSheet03-uhd` directory)
-`python main.py unpack --all -o ./output -input-folder ./assets -resolution uhd` (unpacks all uhd plist files from ./assets directory to ./output)
+`python main.py unpack -o ./output -i ./assets/*.plist -r uhd` (unpacks all uhd plist files from ./assets directory to ./output)
 
 Examples of the packed sheets (i hope i dont get copyright strike :skull:):
 ![GJ_GameSheet02-uhd](assets/GJ_GameSheet02-uhd.png)
