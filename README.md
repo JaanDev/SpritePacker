@@ -20,9 +20,10 @@ Example:
 `python main.py unpack -o ./output -i ./assets/*.plist -r uhd` (unpacks all uhd plist files from ./assets directory to ./output)  
 `python main.py pack -i ./output/* -o ./output2 -r uhd` (packs all unpacked sheets of uhd resolution from ./output to ./output2)
 
-Examples of the packed sheets (i hope i dont get copyright strike :skull:):
+Examples of the packed sheets:
 ![GJ_GameSheet02-uhd](assets/GJ_GameSheet02-uhd.png)
 ![GJ_GameSheet03-uhd](assets/GJ_GameSheet03-uhd.png)
+![GJ_GameSheetIcons-hd](assets/GJ_GameSheetIcons-hd.png)
 
 ## Contributions
 
