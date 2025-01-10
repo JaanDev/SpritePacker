@@ -112,6 +112,10 @@ def pack(inputs: List[Path], originals: List[Path], output: Path, padding: int) 
                 continue
 
             img = cv2.imread(str(f), cv2.IMREAD_UNCHANGED)
+            channels = img.shape[-1] if img.ndim == 3 else 1
+            if channels != 4:  # convert rgb to rgba if needed
+                img = cv2.cvtColor(img, cv2.COLOR_RGB2RGBA)
+                img[:, :, 3] = 255
             h, w, *_ = img.shape
             rotated = False
             if h > w:
